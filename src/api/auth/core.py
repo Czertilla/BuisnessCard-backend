@@ -56,7 +56,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[UserORM, uuid.UUID]):
             safe: bool = False, 
             request: Request | None = None
     ) -> UserORM:
-        await self.check_username(user_update)
+        if user.username != user_update.username:
+            await self.check_username(user_update)
         return await super().update(user_update, user, safe, request)
 
     @override
