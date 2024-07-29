@@ -28,12 +28,12 @@ class UserManager(UUIDIDMixin, BaseUserManager[UserORM, uuid.UUID]):
     async def check_username(self, user: UserCreate|UserUpdate):
         if await UserService(UserUOW()).check_username(user):
             raise HTTPException(
-                status_code=400,
+                status_code=409,
                 detail={
                     "loc": [
                         "username"
                     ],
-                    "msg": f"username= {user.username} is already exists",
+                    "msg": "username is already exists",
                     "input": user.username
                 }
             )
