@@ -1,0 +1,72 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:16
+    container_name: db
+    command: -p 5454
+    expose:
+      - 5454
+    env_file:
+      - .env-non-dev
+    volumes:
+      - data-volume:/var/lib/postgresql/BuisnessCard/data
+
+  redis:
+    image: redis:7
+    container_name: redis
+    command: --port 6380
+    expose:
+      - 6380
+    
+
+  app:
+    build:
+      context: .
+    env_file:
+      - .env-non-dev
+    container_name: BuisnessCard-backend
+    command: ["/BuisnessCard-backend/docker/app.sh"]
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - type: bind
+        source: ./logs/log_files
+        target: /BuisnessCard-backend/logs/log_files
+
+  # celery:
+  #   build:
+  #     context: .
+  #   env_file:
+  #     - .env-non-dev
+  #   container_name: celery
+  #   command: ["/BuisnessCard-backend/docker/celery.sh", "celery"]
+  #   depends_on:
+  #     - redis
+
+  # flower:
+  #   build:
+  #     context: .
+  #   env_file:
+  #     - .env-non-dev
+  #   container_name: flower
+  #   command: ["/BuisnessCard-backend/docker/celery.sh", "flower"]
+  #   depends_on:
+  #     - redis
+  #     - celery
+  #   ports:
+  #     - 5555:5555
+
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    env_file:
+      - .env-non-dev
+    ports:
+      - 5050:80
+
+volumes:
+  data-volume:
